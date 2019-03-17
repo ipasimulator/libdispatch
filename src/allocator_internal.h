@@ -28,7 +28,7 @@
 #define __DISPATCH_ALLOCATOR_INTERNAL__
 
 #ifndef DISPATCH_ALLOCATOR
-#if TARGET_OS_MAC && (defined(__LP64__) || TARGET_OS_IPHONE)
+#if TARGET_OS_MAC && (defined(__LP64__) || TARGET_OS_IPHONE) && !defined(OBJC_PORT)
 #define DISPATCH_ALLOCATOR 1
 #endif
 #endif
@@ -40,7 +40,7 @@
 #endif
 
 #ifndef DISPATCH_USE_MALLOCZONE
-#if (TARGET_OS_MAC && !DISPATCH_USE_NANOZONE) || \
+#if (TARGET_OS_MAC && !DISPATCH_USE_NANOZONE && !defined(OBJC_PORT)) || \
 		(!TARGET_OS_MAC && HAVE_MALLOC_CREATE_ZONE)
 #define DISPATCH_USE_MALLOCZONE 1
 #endif

@@ -31,7 +31,7 @@
 #include <mach/message.h>
 #endif
 
-#if !TARGET_OS_WIN32
+#if !TARGET_OS_WIN32 && !defined(OBJC_PORT)
 #include <sys/signal.h>
 #endif
 

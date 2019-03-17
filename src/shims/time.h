@@ -31,7 +31,7 @@
 #error "Please #include <dispatch/dispatch.h> instead of this file directly."
 #endif
 
-#if TARGET_OS_WIN32
+#if TARGET_OS_WIN32 || defined(OBJC_PORT)
 static inline unsigned int
 sleep(unsigned int seconds)
 {
@@ -101,13 +101,13 @@ _dispatch_get_nanoseconds(void)
 	dispatch_static_assert(sizeof(NSEC_PER_SEC) == 8);
 	dispatch_static_assert(sizeof(USEC_PER_SEC) == 8);
 
-#if TARGET_OS_MAC
+#if TARGET_OS_MAC && !defined(OBJC_PORT)
 	return clock_gettime_nsec_np(CLOCK_REALTIME);
 #elif HAVE_DECL_CLOCK_REALTIME
 	struct timespec ts;
 	dispatch_assume_zero(clock_gettime(CLOCK_REALTIME, &ts));
 	return _dispatch_timespec_to_nano(ts);
-#elif TARGET_OS_WIN32
+#elif TARGET_OS_WIN32 || defined(OBJC_PORT)
 	// FILETIME is 100-nanosecond intervals since January 1, 1601 (UTC).
 	FILETIME ft;
 	ULARGE_INTEGER li;
@@ -135,7 +135,7 @@ _dispatch_uptime(void)
 	struct timespec ts;
 	dispatch_assume_zero(clock_gettime(CLOCK_UPTIME, &ts));
 	return _dispatch_timespec_to_nano(ts);
-#elif TARGET_OS_WIN32
+#elif TARGET_OS_WIN32 || defined(OBJC_PORT)
 	LARGE_INTEGER now;
 	return QueryPerformanceCounter(&now) ? now.QuadPart : 0;
 #else
@@ -156,7 +156,7 @@ _dispatch_monotonic_time(void)
 	struct timespec ts;
 	dispatch_assume_zero(clock_gettime(CLOCK_MONOTONIC, &ts));
 	return _dispatch_timespec_to_nano(ts);
-#elif TARGET_OS_WIN32
+#elif TARGET_OS_WIN32 || defined(OBJC_PORT)
 	LARGE_INTEGER now;
 	return QueryPerformanceCounter(&now) ? now.QuadPart : 0;
 #else
@@ -210,7 +210,7 @@ _dispatch_time_now_cached(dispatch_clock_t clock,
 	if (likely(cache->nows[clock])) {
 		return cache->nows[clock];
 	}
-#if TARGET_OS_MAC
+#if TARGET_OS_MAC && !defined(OBJC_PORT)
 	struct timespec ts;
 	mach_get_times(&cache->nows[DISPATCH_CLOCK_UPTIME],
 			&cache->nows[DISPATCH_CLOCK_MONOTONIC], &ts);

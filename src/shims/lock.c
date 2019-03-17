@@ -30,7 +30,7 @@
 		break; \
 	}
 
-#if TARGET_OS_MAC
+#if TARGET_OS_MAC && !defined(OBJC_PORT)
 dispatch_static_assert(DLOCK_LOCK_DATA_CONTENTION ==
 		ULF_WAIT_WORKQ_DATA_CONTENTION);
 
@@ -291,6 +291,7 @@ _dispatch_sema4_wait(_dispatch_sema4_t *sema)
 	WaitForSingleObject(*sema, INFINITE);
 }
 
+#if !defined(OBJC_PORT)
 bool
 _dispatch_sema4_timedwait(_dispatch_sema4_t *sema, dispatch_time_t timeout)
 {
@@ -306,6 +307,7 @@ _dispatch_sema4_timedwait(_dispatch_sema4_t *sema, dispatch_time_t timeout)
 	_pop_timer_resolution(resolution);
 	return wait_result == WAIT_TIMEOUT;
 }
+#endif
 #else
 #error "port has to implement _dispatch_sema4_t"
 #endif
@@ -430,6 +432,7 @@ _dispatch_futex_unlock_pi(uint32_t *uaddr, int opflags)
 #endif
 #pragma mark - wait for address
 
+#if !defined(OBJC_PORT)
 int
 _dispatch_wait_on_address(uint32_t volatile *_address, uint32_t value,
 		dispatch_time_t timeout, dispatch_lock_options_t flags)
@@ -465,6 +468,7 @@ _dispatch_wait_on_address(uint32_t volatile *_address, uint32_t value,
 #error _dispatch_wait_on_address unimplemented for this platform
 #endif
 }
+#endif
 
 void
 _dispatch_wake_by_address(uint32_t volatile *address)
@@ -557,7 +561,7 @@ _dispatch_unfair_lock_lock_slow(dispatch_unfair_lock_t dul,
 	(void)flags;
 	_dispatch_futex_lock_pi(&dul->dul_lock, NULL, 1, FUTEX_PRIVATE_FLAG);
 }
-#else
+#elif !defined(OBJC_PORT)
 void
 _dispatch_unfair_lock_lock_slow(dispatch_unfair_lock_t dul,
 		dispatch_lock_options_t flags)
@@ -629,7 +633,7 @@ _dispatch_once_wait(dispatch_once_gate_t dgo)
 #elif HAVE_FUTEX
 		_dispatch_futex_wait(lock, (dispatch_lock)new_v, NULL,
 				FUTEX_PRIVATE_FLAG);
-#else
+#elif !defined(OBJC_PORT)
 		_dispatch_thread_switch(new_v, flags, timeout++);
 #endif
 		(void)timeout;
@@ -652,7 +656,7 @@ _dispatch_gate_broadcast_slow(dispatch_gate_t dgl, dispatch_lock cur)
 #endif
 }
 
-#if TARGET_OS_MAC
+#if TARGET_OS_MAC && !defined(OBJC_PORT)
 
 void
 _dispatch_firehose_gate_wait(dispatch_gate_t dgl, uint32_t owner,

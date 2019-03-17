@@ -4003,6 +4003,7 @@ _dispatch_workloop_activate_attributes(dispatch_workloop_t dwl)
 	if (dwla->dwla_flags & DISPATCH_WORKLOOP_ATTR_HAS_POLICY) {
 		pthread_attr_setschedpolicy(&attr, dwla->dwla_policy);
 	}
+#if !defined(OBJC_PORT)
 	if (dwla->dwla_flags & DISPATCH_WORKLOOP_ATTR_HAS_CPUPERCENT) {
 		pthread_attr_setcpupercent_np(&attr, dwla->dwla_cpupercent.percent,
 				(unsigned long)dwla->dwla_cpupercent.refillms);
@@ -4021,6 +4022,8 @@ _dispatch_workloop_activate_attributes(dispatch_workloop_t dwl)
 			dispatch_assert_zero(rv);
 		}
 	}
+// !defined(OBJC_PORT)
+#endif
 	pthread_attr_destroy(&attr);
 }
 
@@ -4065,10 +4068,12 @@ _dispatch_workloop_dispose(dispatch_workloop_t dwl, bool *allow_free)
 		dwl->dwl_timer_heap = NULL;
 	}
 
+#if !defined(OBJC_PORT)
 	if (dwl->dwl_attr && (dwl->dwl_attr->dwla_flags &
 			DISPATCH_WORKLOOP_ATTR_NEEDS_DESTROY)) {
 		(void)dispatch_assume_zero(_pthread_workloop_destroy((uint64_t)dwl));
 	}
+#endif
 	_dispatch_workloop_attributes_dispose(dwl);
 	_dispatch_queue_dispose(dwl, allow_free);
 }
@@ -5145,7 +5150,7 @@ _dispatch_mgr_priority_raise(const pthread_attr_t *attr)
 		return;
 	}
 #endif
-#if DISPATCH_USE_MGR_THREAD
+#if DISPATCH_USE_MGR_THREAD && !defined(OBJC_PORT)
 	if (_dispatch_mgr_sched.tid) {
 		return _dispatch_mgr_priority_apply();
 	}
@@ -5924,8 +5929,8 @@ _dispatch_root_queue_init_pthread_pool(dispatch_queue_global_t dq,
 #if HAVE_PTHREAD_WORKQUEUE_QOS
 		r = pthread_attr_set_qos_class_np(attr, cls, 0);
 		dispatch_assume_zero(r);
-	}
 #endif // HAVE_PTHREAD_WORKQUEUE_QOS
+	}
 	_dispatch_sema4_t *sema = &pqc->dpq_thread_mediator.dsema_sema;
 	pqc->dpq_thread_mediator.do_vtable = DISPATCH_VTABLE(semaphore);
 	_dispatch_sema4_init(sema, _DSEMA4_POLICY_LIFO);
@@ -6698,11 +6703,13 @@ DISPATCH_NOINLINE DISPATCH_NORETURN
 static void
 _dispatch_sigsuspend(void)
 {
+#if !defined(OBJC_PORT)
 	static const sigset_t mask;
 
 	for (;;) {
 		sigsuspend(&mask);
 	}
+#endif
 }
 
 DISPATCH_NORETURN

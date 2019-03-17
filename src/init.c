@@ -78,9 +78,12 @@ dispatch_atfork_child(void)
 int
 _dispatch_sigmask(void)
 {
+#if !defined(OBJC_PORT)
 	sigset_t mask;
+#endif
 	int r = 0;
 
+#if !defined(OBJC_PORT)
 	/* Workaround: 6269619 Not all signals can be delivered on any thread */
 	r |= sigfillset(&mask);
 	r |= sigdelset(&mask, SIGILL);
@@ -95,6 +98,8 @@ _dispatch_sigmask(void)
 	r |= sigdelset(&mask, SIGPIPE);
 	r |= sigdelset(&mask, SIGPROF);
 	r |= pthread_sigmask(SIG_BLOCK, &mask, NULL);
+// !defined(OBJC_PORT)
+#endif
 	return dispatch_assume_zero(r);
 }
 
@@ -193,7 +198,7 @@ const struct dispatch_queue_offsets_s dispatch_queue_offsets = {
 	.dqo_priority_size = 0,
 };
 
-#if TARGET_OS_MAC
+#if TARGET_OS_MAC && !defined(OBJC_PORT)
 const struct dispatch_allocator_layout_s dispatch_allocator_layout = {
 	.dal_version = 1,
 #if DISPATCH_ALLOCATOR
@@ -819,7 +824,7 @@ static char _dispatch_build[16];
 static void
 _dispatch_build_init(void *context DISPATCH_UNUSED)
 {
-#ifdef __APPLE__
+#if defined(__APPLE__) && !defined(OBJC_PORT)
 	int mib[] = { CTL_KERN, KERN_OSVERSION };
 	size_t bufsz = sizeof(_dispatch_build);
 
@@ -959,9 +964,11 @@ _dispatch_bug_kevent_client(const char *msg, const char *filter,
 			dc = du._dr->ds_handler[DS_EVENT_HANDLER];
 			if (dc) func = _dispatch_continuation_get_function_symbol(dc);
 			break;
+#if !defined(OBJC_PORT)
 		case DISPATCH_MACH_CHANNEL_TYPE:
 			func = du._dmrr->dmrr_handler_func;
 			break;
+#endif
 		}
 		filter = dux_type(du._du)->dst_kind;
 	}
@@ -998,9 +1005,11 @@ _dispatch_bug_kevent_vanished(dispatch_unote_t du)
 		dc = du._dr->ds_handler[DS_EVENT_HANDLER];
 		if (dc) func = _dispatch_continuation_get_function_symbol(dc);
 		break;
+#if !defined(OBJC_PORT)
 	case DISPATCH_MACH_CHANNEL_TYPE:
 		func = du._dmrr->dmrr_handler_func;
 		break;
+#endif
 	}
 	_dispatch_log_fault("LIBDISPATCH_STRICT: _dispatch_bug_kevent_vanished",
 			"BUG in libdispatch client: %s, monitored resource vanished before "
@@ -1062,6 +1071,7 @@ _dispatch_logv_init(void *context DISPATCH_UNUSED)
 			dispatch_logfile = STDERR_FILENO;
 		}
 	}
+#if !defined(OBJC_PORT)
 	if (!dispatch_log_disabled) {
 		if (log_to_file && dispatch_logfile == -1) {
 			char path[PATH_MAX];
@@ -1081,6 +1091,8 @@ _dispatch_logv_init(void *context DISPATCH_UNUSED)
 					tv.tv_sec, (int)tv.tv_usec);
 		}
 	}
+// !defined(OBJC_PORT)
+#endif
 }
 
 static inline void

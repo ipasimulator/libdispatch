@@ -16,7 +16,9 @@
 #if __has_include(<sys/sysmacros.h>)
 #include <sys/sysmacros.h>
 #endif
+#if !defined(OBJC_PORT)
 #include <sys/param.h>
+#endif
 
 #if __has_include(<sys/cdefs.h>)
 #include <sys/cdefs.h>

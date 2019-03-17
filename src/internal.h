@@ -27,6 +27,305 @@
 #ifndef __DISPATCH_INTERNAL__
 #define __DISPATCH_INTERNAL__
 
+#if defined(OBJC_PORT)
+// From apple headers
+typedef unsigned int qos_class_t;
+typedef int mach_error_t;
+typedef unsigned short mode_t;
+typedef unsigned int uid_t;
+/* vfsquery flags */
+#define VQ_NOTRESP	0x0001	/* server down */
+#define VQ_NEEDAUTH	0x0002	/* server bad auth */
+#define VQ_LOWDISK	0x0004	/* we're low on space */
+#define VQ_MOUNT	0x0008	/* new filesystem arrived */
+#define VQ_UNMOUNT	0x0010	/* filesystem has left */
+#define VQ_DEAD		0x0020	/* filesystem is dead, needs force unmount */
+#define VQ_ASSIST	0x0040	/* filesystem needs assistance from external program */
+#define VQ_NOTRESPLOCK	0x0080	/* server lockd down */
+#define VQ_UPDATE	0x0100	/* filesystem information has changed */
+#define VQ_VERYLOWDISK	0x0200	/* file system has *very* little disk space left */
+#define VQ_SYNCEVENT	0x0400	/* a sync just happened (not set by kernel starting Mac OS X 10.9) */
+#define VQ_SERVEREVENT  0x0800  /* server issued notification/warning */
+#define VQ_QUOTA	0x1000	/* a user quota has been hit */
+#define VQ_NEARLOWDISK		0x2000	/* Above lowdisk and below desired disk space */
+#define VQ_DESIRED_DISK 	0x4000	/* the desired disk space */
+#define VQ_FLAG8000	0x8000	/* placeholder */
+/*
+ *	Policy definitions.  Policies should be powers of 2,
+ *	but cannot be or'd together other than to test for a
+ *	policy 'class'.
+ */
+#define	POLICY_NULL		0	/* none			*/
+#define	POLICY_TIMESHARE	1	/* timesharing		*/
+#define	POLICY_RR		2	/* fixed round robin	*/
+#define POLICY_FIFO		4	/* fixed fifo		*/
+/* Macros for counting and rounding. */
+#define	howmany(x, y)	((((x) % (y)) == 0) ? ((x) / (y)) : (((x) / (y)) + 1))
+
+#define	SIZE_T_MAX	ULONG_MAX	/* max value for a size_t */
+
+// From <Windows.h>
+typedef unsigned long DWORD;
+typedef struct _FILETIME {
+    DWORD dwLowDateTime;
+    DWORD dwHighDateTime;
+} FILETIME, *PFILETIME, *LPFILETIME;
+typedef unsigned __int64 ULONGLONG;
+#define DUMMYSTRUCTNAME
+typedef union _ULARGE_INTEGER {
+    struct {
+        DWORD LowPart;
+        DWORD HighPart;
+    } DUMMYSTRUCTNAME;
+    struct {
+        DWORD LowPart;
+        DWORD HighPart;
+    } u;
+    ULONGLONG QuadPart;
+} ULARGE_INTEGER;
+typedef long LONG;
+typedef __int64 LONGLONG;
+typedef union _LARGE_INTEGER {
+    struct {
+        DWORD LowPart;
+        LONG HighPart;
+    } DUMMYSTRUCTNAME;
+    struct {
+        DWORD LowPart;
+        LONG HighPart;
+    } u;
+    LONGLONG QuadPart;
+} LARGE_INTEGER;
+typedef unsigned int        UINT;
+typedef UINT                MMRESULT;
+#define FAR
+#define NEAR
+typedef struct timecaps_tag {
+    UINT    wPeriodMin;     /* minimum period supported  */
+    UINT    wPeriodMax;     /* maximum period supported  */
+} TIMECAPS, *PTIMECAPS, NEAR *NPTIMECAPS, FAR *LPTIMECAPS;
+typedef const char *LPCSTR;
+typedef void       *LPVOID;
+#define BOOL int
+typedef struct _SECURITY_ATTRIBUTES {
+    DWORD nLength;
+    LPVOID lpSecurityDescriptor;
+    BOOL bInheritHandle;
+} SECURITY_ATTRIBUTES, *PSECURITY_ATTRIBUTES, *LPSECURITY_ATTRIBUTES;
+typedef void *HANDLE;
+typedef long            *LPLONG;
+#define DECLSPEC_IMPORT __declspec(dllimport)
+#define WINBASEAPI DECLSPEC_IMPORT
+#define VOID void
+#define WINAPI      __stdcall
+#define WINMMAPI        DECLSPEC_IMPORT
+#define MMSYSERR_NOERROR      0                    /* no error */
+#define TIMERR_NOERROR        (0)                  /* no error */
+#define INFINITE            0xFFFFFFFF  // Infinite timeout
+WINBASEAPI
+VOID
+WINAPI
+GetSystemTimeAsFileTime(
+    /*_Out_*/ LPFILETIME lpSystemTimeAsFileTime
+    );
+WINBASEAPI
+BOOL
+WINAPI
+QueryPerformanceCounter(
+    /*_Out_*/ LARGE_INTEGER* lpPerformanceCount
+    );
+WINBASEAPI
+DWORD
+WINAPI
+GetCurrentThreadId(
+    VOID
+    );
+WINBASEAPI
+DWORD
+WINAPI
+GetCurrentProcessId(
+    VOID
+    );
+WINBASEAPI
+VOID
+WINAPI
+Sleep(
+    /*_In_*/ DWORD dwMilliseconds
+    );
+WINMMAPI
+MMRESULT
+WINAPI
+timeGetDevCaps(
+    /*_Out_writes_bytes_(cbtc)*/ LPTIMECAPS ptc,
+    /*_In_*/ UINT cbtc
+    );
+WINMMAPI
+MMRESULT
+WINAPI
+timeBeginPeriod(
+    /*_In_*/ UINT uPeriod
+    );
+WINMMAPI
+MMRESULT
+WINAPI
+timeEndPeriod(
+    /*_In_*/ UINT uPeriod
+    );
+WINBASEAPI
+/* _Ret_maybenull_ */
+HANDLE
+WINAPI
+CreateSemaphoreA(
+    /* _In_opt_ */ LPSECURITY_ATTRIBUTES lpSemaphoreAttributes,
+    /* _In_     */ LONG lInitialCount,
+    /* _In_     */ LONG lMaximumCount,
+    /* _In_opt_ */ LPCSTR lpName
+    );
+#define CreateSemaphore  CreateSemaphoreA
+WINBASEAPI
+BOOL
+WINAPI
+CloseHandle(
+    /* _In_ _Post_ptr_invalid_ */ HANDLE hObject
+    );
+WINBASEAPI
+BOOL
+WINAPI
+ReleaseSemaphore(
+    /* _In_ */ HANDLE hSemaphore,
+    /* _In_ */ LONG lReleaseCount,
+    /* _Out_opt_ */ LPLONG lpPreviousCount
+    );
+WINBASEAPI
+DWORD
+WINAPI
+WaitForSingleObject(
+    /* _In_ */ HANDLE hHandle,
+    /* _In_ */ DWORD dwMilliseconds
+    );
+
+#undef BOOL
+
+// From `libdispatch` port (inside WinObjC)
+#if 0
+#include <time.h>
+struct timeval {
+	long tv_sec;
+	long tv_usec;
+};
+struct timezone 
+{
+	int  tz_minuteswest; /* minutes W of Greenwich */
+	int  tz_dsttime;     /* type of dst correction */
+};
+
+static const unsigned __int64 intervals_per_second      = 10000000ULL;
+static const unsigned __int64 microseconds_per_second   = 1000000ULL;
+static const unsigned __int64 intervals_per_microsecond = 10ULL;
+static const unsigned __int64 intervals_since_epoch     = 116444736000000000ULL;
+static const unsigned __int64 microseconds_since_epoch  = 11644473600000000ULL;
+
+inline int gettimeofday(struct timeval* tv, struct timezone* tz)
+{
+	static int tzflag = 0;
+
+	if(NULL != tv)
+	{
+		FILETIME file_time;
+		ULARGE_INTEGER ularge;
+
+		GetSystemTimeAsFileTime(&file_time);
+		ularge.LowPart = file_time.dwLowDateTime;
+		ularge.HighPart = file_time.dwHighDateTime;
+		ularge.QuadPart -= intervals_since_epoch;
+		ularge.QuadPart /= intervals_per_microsecond;
+		tv->tv_sec = (long) (ularge.QuadPart / microseconds_per_second);
+		tv->tv_usec = (long) (ularge.QuadPart % microseconds_per_second);
+	}
+
+	if (NULL != tz)
+	{
+		long seconds = 0;
+		int hours = 0;
+		if (!tzflag)
+		{
+			_tzset();
+			tzflag++;
+		}
+		_get_timezone(&seconds);
+		_get_daylight(&hours);
+
+		tz->tz_minuteswest = seconds / 60;
+		tz->tz_dsttime = hours;
+	}
+
+	return 0;
+}
+#endif // 0
+
+#include <stdarg.h>
+#include <stdlib.h>
+#include <stdio.h>
+inline int vasprintf(char** str, const char* fmt, va_list ap)
+{
+	va_list original_ap = ap;
+	size_t size = 32;
+	int n;
+	char* p = NULL;
+	char* np = NULL;
+
+	for(;;)
+	{
+		ap = original_ap;
+		if((np = realloc(p, size)) == NULL)
+		{
+			free(p);
+			return -1;
+		}
+		p = np;
+		n = vsnprintf(p, size, fmt, ap);
+		va_end(ap);
+
+		if(n > -1 && (size_t)n < size)
+		{
+			*str = p;
+			return n;
+		}
+		size *= 2;
+	}
+}
+inline int asprintf(char **str, const char *fmt, ...)
+{
+	va_list ap;
+	int ret;
+
+	*str = NULL;
+	va_start(ap, fmt);
+	ret = vasprintf(str, fmt, ap);
+	va_end(ap);
+	return ret;
+}
+
+// Stubs
+#define os_likely(x) (x)
+#define os_unlikely(x) (x)
+#define MIN(A,B)    ((A) < (B) ? (A) : (B))
+#define MAX(A,B)    ((A) > (B) ? (A) : (B))
+#define strcasecmp	_stricmp
+#define STDIN_FILENO    0   /* standard input file descriptor */
+#define STDOUT_FILENO   1   /* standard output file descriptor */
+#define STDERR_FILENO   2   /* standard error file descriptor */
+#define PATH_MAX          260
+#define getpid GetCurrentProcessId
+typedef signed int ssize_t;
+
+inline int usleep(unsigned int useconds) {
+  Sleep(useconds / 1000);
+  return 0;
+}
+// defined(OBJC_PORT)
+#endif
+
 #if __has_include(<config/config_ac.h>)
 #include <config/config_ac.h>
 #else
@@ -49,20 +348,20 @@
 #if !defined(OS_VOUCHER_CREATION_SPI) && TARGET_OS_MAC
 #define OS_VOUCHER_CREATION_SPI 1
 #endif
-#if !defined(OS_VOUCHER_ACTIVITY_SPI) && TARGET_OS_MAC
+#if !defined(OS_VOUCHER_ACTIVITY_SPI) && TARGET_OS_MAC && !defined(OBJC_PORT)
 #define OS_VOUCHER_ACTIVITY_SPI 1
 #endif
 #if !defined(OS_VOUCHER_ACTIVITY_GENERATE_SWAPS)
 #define OS_VOUCHER_ACTIVITY_GENERATE_SWAPS 0
 #endif
-#if !defined(OS_FIREHOSE_SPI) && TARGET_OS_MAC
+#if !defined(OS_FIREHOSE_SPI) && TARGET_OS_MAC && !defined(OBJC_PORT)
 #define OS_FIREHOSE_SPI 1
 #endif
-#if !defined(DISPATCH_LAYOUT_SPI) && TARGET_OS_MAC
+#if !defined(DISPATCH_LAYOUT_SPI) && TARGET_OS_MAC && !defined(OBJC_PORT)
 #define DISPATCH_LAYOUT_SPI 1
 #endif
 
-#if __has_include(<mach-o/dyld_priv.h>)
+#if __has_include(<mach-o/dyld_priv.h>) && !defined(OBJC_PORT)
 #include <mach-o/dyld_priv.h>
 #if !defined(HAVE_DYLD_IS_MEMORY_IMMUTABLE)
 #if defined(DYLD_MACOSX_VERSION_10_12) || defined(DYLD_IOS_VERSION_10_0)
@@ -268,7 +567,7 @@ upcast(dispatch_object_t dou)
 
 #include <sys/stat.h>
 
-#if !TARGET_OS_WIN32
+#if !TARGET_OS_WIN32 && !defined(OBJC_PORT)
 #include <sys/mount.h>
 #include <sys/queue.h>
 #ifdef __ANDROID__
@@ -354,7 +653,7 @@ DISPATCH_EXPORT DISPATCH_NOTHROW void dispatch_atfork_child(void);
 #define DISPATCH_DEBUG_QOS DISPATCH_DEBUG
 #endif
 
-#if __GNUC__
+#if __GNUC__ || defined(OBJC_PORT)
 #define DISPATCH_NOINLINE __attribute__((__noinline__))
 #define DISPATCH_USED __attribute__((__used__))
 #define DISPATCH_UNUSED __attribute__((__unused__))
@@ -921,6 +1220,9 @@ _dispatch_ktrace_impl(uint32_t code, uint64_t a, uint64_t b,
 #define mach_voucher_t mach_port_t
 #define MACH_VOUCHER_NULL MACH_PORT_NULL
 #define MACH_SEND_INVALID_VOUCHER 0x10000005
+#elif defined(OBJC_PORT)
+typedef mach_port_t		mach_voucher_t;
+#define MACH_VOUCHER_NULL MACH_PORT_NULL
 #endif
 
 #ifndef VOUCHER_USE_MACH_VOUCHER

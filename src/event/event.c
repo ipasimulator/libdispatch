@@ -493,7 +493,7 @@ _dispatch_timer_heap_left_child(uint32_t idx)
 	return 2 * idx + DTH_ID_COUNT - heap_id;
 }
 
-#if DISPATCH_HAVE_TIMER_COALESCING
+#if DISPATCH_HAVE_TIMER_COALESCING && !defined(OBJC_PORT)
 DISPATCH_ALWAYS_INLINE
 static inline uint32_t
 _dispatch_timer_heap_walk_skip(uint32_t idx, uint32_t count)
@@ -952,6 +952,7 @@ _dispatch_source_timer_create(dispatch_source_type_t dst,
 	} else switch (handle) {
 	case 0:
 		break;
+#if !defined(OBJC_PORT)
 	case DISPATCH_CLOCKID_UPTIME:
 		dst = &_dispatch_source_type_timer_with_clock;
 		mask |= DISPATCH_TIMER_CLOCK_UPTIME;
@@ -964,6 +965,7 @@ _dispatch_source_timer_create(dispatch_source_type_t dst,
 		dst = &_dispatch_source_type_timer_with_clock;
 		mask |= DISPATCH_TIMER_CLOCK_WALL;
 		break;
+#endif
 	default:
 		return DISPATCH_UNOTE_NULL;
 	}
@@ -1151,7 +1153,7 @@ _dispatch_timers_get_delay(dispatch_timer_heap_t dth, uint32_t tidx,
 	}
 
 	if (qos < DISPATCH_TIMER_QOS_COUNT && dth[tidx].dth_count > 2) {
-#if DISPATCH_HAVE_TIMER_COALESCING
+#if DISPATCH_HAVE_TIMER_COALESCING && !defined(OBJC_PORT)
 		// Timer pre-coalescing <rdar://problem/13222034>
 		// When we have several timers with this target/deadline bracket:
 		//

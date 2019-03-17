@@ -138,10 +138,12 @@ _dispatch_hw_get_config(_dispatch_hw_config_t c)
 	 (void)c; name = "kern.smp.cpus";
 #endif
 	if (name) {
+#if !defined(OBJC_PORT)
 		size_t valsz = sizeof(val);
 		r = sysctlbyname(name, &val, &valsz, NULL, 0);
 		(void)dispatch_assume_zero(r);
 		dispatch_assert(valsz == sizeof(uint32_t));
+#endif
 	} else {
 #if HAVE_SYSCONF && defined(_SC_NPROCESSORS_ONLN)
 		r = (int)sysconf(_SC_NPROCESSORS_ONLN);

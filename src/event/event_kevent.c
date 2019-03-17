@@ -332,7 +332,7 @@ DISPATCH_ALWAYS_INLINE
 static dispatch_unote_t
 _dispatch_kevent_get_unote(dispatch_kevent_t ke)
 {
-	dispatch_assert((ke->udata & DISPATCH_KEVENT_MUXED_MARKER) == 0);
+	dispatch_assert(((unsigned long)ke->udata & DISPATCH_KEVENT_MUXED_MARKER) == 0);
 	return (dispatch_unote_t){ ._du = (dispatch_unote_class_t)ke->udata };
 }
 
@@ -352,7 +352,7 @@ _dispatch_kevent_print_error(dispatch_kevent_t ke)
 		}
 		// for EV_DELETE if the update was deferred we may have reclaimed
 		// the udata already, and it is unsafe to dereference it now.
-	} else if (ke->udata & DISPATCH_KEVENT_MUXED_MARKER) {
+	} else if ((unsigned long)ke->udata & DISPATCH_KEVENT_MUXED_MARKER) {
 		ke->flags |= _dispatch_kevent_get_muxnote(ke)->dmn_kev.flags;
 	} else if (ke->udata) {
 		du = (dispatch_unote_class_t)(uintptr_t)ke->udata;
@@ -364,8 +364,10 @@ _dispatch_kevent_print_error(dispatch_kevent_t ke)
 	switch (ke->data) {
 	case 0:
 		return;
+#if !defined(OBJC_PORT)
 	case ERANGE: /* A broken QoS was passed to kevent_id() */
 		DISPATCH_INTERNAL_CRASH(ke->qos, "Invalid kevent priority");
+#endif
 	default:
 		// log the unexpected error
 		_dispatch_bug_kevent_client("kevent", _evfiltstr(ke->filter),
@@ -536,7 +538,7 @@ _dispatch_kevent_drain(dispatch_kevent_t ke)
 	}
 #endif
 
-	if (ke->udata & DISPATCH_KEVENT_MUXED_MARKER) {
+	if ((unsigned long)ke->udata & DISPATCH_KEVENT_MUXED_MARKER) {
 		return _dispatch_kevent_merge_muxed(ke);
 	}
 	return _dispatch_kevent_merge(_dispatch_kevent_get_unote(ke), ke);
@@ -562,7 +564,9 @@ _dispatch_kq_create(intptr_t *fd_ptr)
 	guardid_t guard = (uintptr_t)fd_ptr;
 	kqfd = guarded_kqueue_np(&guard, GUARD_CLOSE | GUARD_DUP);
 #else
+#if !defined(OBJC_PORT)
 	(void)guard_ptr;
+#endif
 	kqfd = kqueue();
 #endif
 	if (kqfd == -1) {
@@ -679,7 +683,7 @@ _dispatch_kq_poll(dispatch_wlh_t wlh, dispatch_kevent_t ke, int n,
 		for (r = 0; r < n; r++) {
 			ke[r].flags |= EV_RECEIPT;
 		}
-		out_n = n;
+		n_out = n;
 	}
 #endif
 
@@ -1048,10 +1052,12 @@ _dispatch_unote_register_muxed(dispatch_unote_t du)
 	if (installed) {
 		dispatch_unote_linkage_t dul = _dispatch_unote_get_linkage(du);
 		LIST_INSERT_HEAD(&dmn->dmn_unotes_head, dul, du_link);
+#if !defined(OBJC_PORT)
 		if (du._du->du_filter == DISPATCH_EVFILT_MACH_NOTIFICATION) {
 			os_atomic_store2o(du._dmsr, dmsr_notification_armed,
 					DISPATCH_MACH_NOTIFICATION_ARMED(dmn), relaxed);
 		}
+#endif
 		dul->du_muxnote = dmn;
 		_dispatch_unote_state_set(du, DISPATCH_WLH_ANON, DU_STATE_ARMED);
 		_dispatch_du_debug("installed", du._du);
@@ -1080,9 +1086,11 @@ _dispatch_unote_unregister_muxed(dispatch_unote_t du)
 	dispatch_muxnote_t dmn = dul->du_muxnote;
 	bool update = false, dispose = false;
 
+#if !defined(OBJC_PORT)
 	if (dmn->dmn_kev.filter == DISPATCH_EVFILT_MACH_NOTIFICATION) {
 		os_atomic_store2o(du._dmsr, dmsr_notification_armed, false, relaxed);
 	}
+#endif
 	_dispatch_unote_state_set(du, DU_STATE_UNREGISTERED);
 	LIST_REMOVE(dul, du_link);
 	_LIST_TRASH_ENTRY(dul, du_link);
@@ -1357,7 +1365,7 @@ _dispatch_event_loop_timer_program(dispatch_timer_heap_t dth, uint32_t tidx,
 		.fflags = _dispatch_timer_index_to_fflags[tidx],
 		.data = (int64_t)target,
 		.udata = (uintptr_t)dth,
-#if DISPATCH_HAVE_TIMER_COALESCING
+#if DISPATCH_HAVE_TIMER_COALESCING && !defined(OBJC_PORT)
 		.ext[1] = leeway,
 #endif
 #if DISPATCH_USE_KEVENT_QOS

@@ -19,7 +19,7 @@
 #include <stdint.h>
 #ifdef __ANDROID__
 #include <sys/syscall.h>
-#else
+#elif !defined(OBJC_PORT)
 #include <syscall.h>
 #endif /* __ANDROID__ */
 

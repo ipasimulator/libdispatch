@@ -65,7 +65,7 @@
 #define FD_COPY(f, t) (void)(*(t) = *(f))
 #endif
 
-#if TARGET_OS_WIN32
+#if TARGET_OS_WIN32 || defined(OBJC_PORT)
 #define bzero(ptr,len) memset((ptr), 0, (len))
 #define snprintf _snprintf
 
@@ -265,7 +265,7 @@ _dispatch_mempcpy(void *ptr, const void *data, size_t len)
 #define _dispatch_memappend(ptr, e) \
 	_dispatch_mempcpy(ptr, e, sizeof(*(e)))
 
-#ifdef __APPLE__
+#if defined(__APPLE__) && !defined(OBJC_PORT)
 // Clear the stack before calling long-running thread-handler functions that
 // never return (and don't take arguments), to facilitate leak detection and
 // provide cleaner backtraces. <rdar://problem/9050566>

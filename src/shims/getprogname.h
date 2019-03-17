@@ -35,6 +35,8 @@ getprogname(void)
 	return program_invocation_short_name;
 # elif defined(__ANDROID__)
 	return __progname;
+# elif defined(OBJC_PORT)
+  return "libdispatch.dll";
 # else
 #   error getprogname(3) is not available on this platform
 # endif

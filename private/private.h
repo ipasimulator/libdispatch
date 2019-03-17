@@ -45,7 +45,7 @@
 #include <unistd.h>
 #endif
 #include <pthread.h>
-#if TARGET_OS_MAC
+#if TARGET_OS_MAC && !defined(OBJC_PORT)
 #include <pthread/qos.h>
 #endif
 
@@ -171,7 +171,7 @@ void _dispatch_prohibit_transition_to_multithreaded(bool prohibit);
  * SPI for CoreFoundation/Foundation ONLY
  */
 
-#if TARGET_OS_MAC
+#if TARGET_OS_MAC && !defined(OBJC_PORT)
 #define DISPATCH_COCOA_COMPAT 1
 #elif defined(__linux__)
 #define DISPATCH_COCOA_COMPAT 1

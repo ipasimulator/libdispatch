@@ -647,6 +647,13 @@ struct dispatch_queue_global_s {
 	DISPATCH_QUEUE_ROOT_CLASS_HEADER(lane);
 } DISPATCH_CACHELINE_ALIGN;
 
+typedef struct dispatch_pthread_root_queue_observer_hooks_s {
+	void (*queue_will_execute)(dispatch_queue_t queue);
+	void (*queue_did_execute)(dispatch_queue_t queue);
+} dispatch_pthread_root_queue_observer_hooks_s;
+typedef dispatch_pthread_root_queue_observer_hooks_s
+		*dispatch_pthread_root_queue_observer_hooks_t;
+
 #if DISPATCH_USE_PTHREAD_POOL
 typedef struct dispatch_pthread_root_queue_context_s {
 	pthread_attr_t dpq_thread_attr;
@@ -1201,14 +1208,7 @@ dispatch_qos_t _dispatch_continuation_init_slow(dispatch_continuation_t dc,
 
 #endif /* __BLOCKS__ */
 
-typedef struct dispatch_pthread_root_queue_observer_hooks_s {
-	void (*queue_will_execute)(dispatch_queue_t queue);
-	void (*queue_did_execute)(dispatch_queue_t queue);
-} dispatch_pthread_root_queue_observer_hooks_s;
-typedef dispatch_pthread_root_queue_observer_hooks_s
-		*dispatch_pthread_root_queue_observer_hooks_t;
-
-#ifdef __APPLE__
+#if defined(__APPLE__) && !defined(OBJC_PORT)
 #define DISPATCH_IOHID_SPI 1
 
 DISPATCH_EXPORT DISPATCH_MALLOC DISPATCH_RETURNS_RETAINED DISPATCH_WARN_RESULT

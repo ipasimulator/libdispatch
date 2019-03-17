@@ -29,7 +29,7 @@
 #include <stdint.h>
 
 // <rdar://problem/6368156&7563559>
-#if TARGET_OS_MAC
+#if TARGET_OS_MAC && !defined(OBJC_PORT)
 #include <mach/clock_types.h>
 #endif
 

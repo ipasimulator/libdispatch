@@ -1,6 +1,9 @@
 /* config/config.h.  Generated from config.h.in by configure.  */
 /* config/config.h.in.  Generated from configure.ac by autoheader.  */
 
+/* Define if building pthread work queues from source */
+#define DISPATCH_USE_INTERNAL_WORKQUEUE 1
+
 /* Define to 1 if you have the declaration of `CLOCK_MONOTONIC', and to 0 if
    you don't. */
 #define HAVE_DECL_CLOCK_MONOTONIC 0
@@ -50,7 +53,7 @@
 #define HAVE_DECL_PROGRAM_INVOCATION_SHORT_NAME 0
 
 /* Define to 1 if you have the declaration of `SIGEMT', and to 0 if you don't.
-   */
+ */
 #define HAVE_DECL_SIGEMT 1
 
 /* Define to 1 if you have the declaration of `VQ_UPDATE', and to 0 if you
@@ -80,7 +83,7 @@
 #define HAVE_FCNTL_H 1
 
 /* Define to 1 if you have the `getprogname' function. */
-#define HAVE_GETPROGNAME 1
+#define HAVE_GETPROGNAME 0
 
 /* Define to 1 if you have the <inttypes.h> header file. */
 #define HAVE_INTTYPES_H 1
@@ -89,28 +92,28 @@
 #define HAVE_LEAKS 1
 
 /* Define to 1 if you have the <libkern/OSAtomic.h> header file. */
-#define HAVE_LIBKERN_OSATOMIC_H 1
+#define HAVE_LIBKERN_OSATOMIC_H 0
 
 /* Define to 1 if you have the <libkern/OSCrossEndian.h> header file. */
-#define HAVE_LIBKERN_OSCROSSENDIAN_H 1
+#define HAVE_LIBKERN_OSCROSSENDIAN_H 0
 
 /* Define to 1 if you have the <libproc_internal.h> header file. */
-#define HAVE_LIBPROC_INTERNAL_H 1
+#define HAVE_LIBPROC_INTERNAL_H 0
 
 /* Define if mach is present */
-#define HAVE_MACH 1
+#define HAVE_MACH 0
 
 /* Define to 1 if you have the `mach_absolute_time' function. */
-#define HAVE_MACH_ABSOLUTE_TIME 1
+#define HAVE_MACH_ABSOLUTE_TIME 0
 
 /* Define to 1 if you have the `mach_approximate_time' function. */
-#define HAVE_MACH_APPROXIMATE_TIME 1
+#define HAVE_MACH_APPROXIMATE_TIME 0
 
 /* Define to 1 if you have the `malloc_create_zone' function. */
-#define HAVE_MALLOC_CREATE_ZONE 1
+#define HAVE_MALLOC_CREATE_ZONE 0
 
 /* Define to 1 if you have the <malloc/malloc.h> header file. */
-#define HAVE_MALLOC_MALLOC_H 1
+#define HAVE_MALLOC_MALLOC_H 0
 
 /* Define to 1 if you have the <memory.h> header file. */
 #define HAVE_MEMORY_H 1
@@ -125,25 +128,25 @@
 #define HAVE_PTHREAD_KEY_INIT_NP 1
 
 /* Define to 1 if you have the <pthread_machdep.h> header file. */
-#define HAVE_PTHREAD_MACHDEP_H 1
+#define HAVE_PTHREAD_MACHDEP_H 0
 
 /* Define to 1 if you have the `pthread_main_np' function. */
-#define HAVE_PTHREAD_MAIN_NP 1
+#define HAVE_PTHREAD_MAIN_NP 0
 
 /* Define to 1 if you have the <pthread_np.h> header file. */
 /* #undef HAVE_PTHREAD_NP_H */
 
 /* Define to 1 if you have the <pthread/qos.h> header file. */
-#define HAVE_PTHREAD_QOS_H 1
+#define HAVE_PTHREAD_QOS_H 0
 
 /* Define if pthread work queues are present */
-#define HAVE_PTHREAD_WORKQUEUES 1
+#define HAVE_PTHREAD_WORKQUEUES 0
 
 /* Define to 1 if you have the <pthread_workqueue.h> header file. */
-#define HAVE_PTHREAD_WORKQUEUE_H 1
+#define HAVE_PTHREAD_WORKQUEUE_H 0
 
 /* Define to 1 if you have the <pthread/workqueue_private.h> header file. */
-#define HAVE_PTHREAD_WORKQUEUE_PRIVATE_H 1
+#define HAVE_PTHREAD_WORKQUEUE_PRIVATE_H 0
 
 /* Define to 1 if you have the <stdint.h> header file. */
 #define HAVE_STDINT_H 1
@@ -164,7 +167,7 @@
 #define HAVE_SYS_CDEFS_H 1
 
 /* Define to 1 if you have the <sys/guarded.h> header file. */
-#define HAVE_SYS_GUARDED_H 1
+#define HAVE_SYS_GUARDED_H 0
 
 /* Define to 1 if you have the <sys/stat.h> header file. */
 #define HAVE_SYS_STAT_H 1
@@ -176,7 +179,7 @@
 #define HAVE_TARGETCONDITIONALS_H 1
 
 /* Define to 1 if you have the <unistd.h> header file. */
-#define HAVE_UNISTD_H 1
+#define HAVE_UNISTD_H 0
 
 /* Define to 1 if you have the `_pthread_workqueue_init' function. */
 #define HAVE__PTHREAD_WORKQUEUE_INIT 1
@@ -209,38 +212,39 @@
 #define STDC_HEADERS 1
 
 /* Define to use non-portable pthread TSD optimizations for Mac OS X) */
-#define USE_APPLE_TSD_OPTIMIZATIONS 1
+#define USE_APPLE_TSD_OPTIMIZATIONS 0
 
 /* Define to tag libdispatch_init as a constructor */
 /* #undef USE_LIBDISPATCH_INIT_CONSTRUCTOR */
 
 /* Define to use Mach semaphores */
-#define USE_MACH_SEM 1
+#define USE_MACH_SEM 0
 
 /* Define to use POSIX semaphores */
 /* #undef USE_POSIX_SEM */
 
+#define USE_WIN32_SEM 1
+
 /* Enable extensions on AIX 3, Interix.  */
 #ifndef _ALL_SOURCE
-# define _ALL_SOURCE 1
+#define _ALL_SOURCE 1
 #endif
 /* Enable GNU extensions on systems that have them.  */
 #ifndef _GNU_SOURCE
-# define _GNU_SOURCE 1
+#define _GNU_SOURCE 1
 #endif
 /* Enable threading extensions on Solaris.  */
 #ifndef _POSIX_PTHREAD_SEMANTICS
-# define _POSIX_PTHREAD_SEMANTICS 1
+#define _POSIX_PTHREAD_SEMANTICS 1
 #endif
 /* Enable extensions on HP NonStop.  */
 #ifndef _TANDEM_SOURCE
-# define _TANDEM_SOURCE 1
+#define _TANDEM_SOURCE 1
 #endif
 /* Enable general extensions on Solaris.  */
 #ifndef __EXTENSIONS__
-# define __EXTENSIONS__ 1
+#define __EXTENSIONS__ 1
 #endif
-
 
 /* Version number of package */
 #define VERSION "1.3"

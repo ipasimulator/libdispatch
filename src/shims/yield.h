@@ -124,6 +124,10 @@
 #pragma mark -
 #pragma mark _dispatch_preemption_yield
 
+#if defined(OBJC_PORT)
+#define pthread_yield_np()
+#endif
+
 #if HAVE_MACH
 #if defined(SWITCH_OPTION_OSLOCK_DEPRESS)
 #define DISPATCH_YIELD_THREAD_SWITCH_OPTION SWITCH_OPTION_OSLOCK_DEPRESS

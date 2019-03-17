@@ -89,6 +89,11 @@ _dispatch_client_callout4(void *ctxt, dispatch_mach_reason_t reason,
 #pragma mark _os_object_t & dispatch_object_t
 #if DISPATCH_PURE_C
 
+#if defined(OBJC_PORT)
+typedef void *id;
+extern const char *object_getClassName(id obj);
+#endif
+
 DISPATCH_ALWAYS_INLINE
 static inline const char *
 _dispatch_object_class_name(dispatch_object_t dou)
@@ -2028,7 +2033,6 @@ _dispatch_set_basepri(dispatch_priority_t dq_dbp)
 	_dispatch_thread_setspecific(dispatch_basepri_key, (void*)(uintptr_t)dbp);
 	return old_dbp;
 #else
-	(void)dbp;
 	return 0;
 #endif
 }
