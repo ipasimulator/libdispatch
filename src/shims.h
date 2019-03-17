@@ -69,7 +69,7 @@
 #define bzero(ptr,len) memset((ptr), 0, (len))
 #define snprintf _snprintf
 
-inline size_t strlcpy(char *dst, const char *src, size_t size) {
+static inline size_t strlcpy(char *dst, const char *src, size_t size) {
 	int res = strlen(dst) + strlen(src) + 1;
 	if (size > 0) {
 		size_t n = size - 1;

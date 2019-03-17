@@ -225,7 +225,7 @@ static const unsigned __int64 intervals_per_microsecond = 10ULL;
 static const unsigned __int64 intervals_since_epoch     = 116444736000000000ULL;
 static const unsigned __int64 microseconds_since_epoch  = 11644473600000000ULL;
 
-inline int gettimeofday(struct timeval* tv, struct timezone* tz)
+static inline int gettimeofday(struct timeval* tv, struct timezone* tz)
 {
 	static int tzflag = 0;
 
@@ -266,7 +266,7 @@ inline int gettimeofday(struct timeval* tv, struct timezone* tz)
 #include <stdarg.h>
 #include <stdlib.h>
 #include <stdio.h>
-inline int vasprintf(char** str, const char* fmt, va_list ap)
+static inline int vasprintf(char** str, const char* fmt, va_list ap)
 {
 	va_list original_ap = ap;
 	size_t size = 32;
@@ -294,7 +294,7 @@ inline int vasprintf(char** str, const char* fmt, va_list ap)
 		size *= 2;
 	}
 }
-inline int asprintf(char **str, const char *fmt, ...)
+static inline int asprintf(char **str, const char *fmt, ...)
 {
 	va_list ap;
 	int ret;
@@ -319,7 +319,7 @@ inline int asprintf(char **str, const char *fmt, ...)
 #define getpid GetCurrentProcessId
 typedef signed int ssize_t;
 
-inline int usleep(unsigned int useconds) {
+static inline int usleep(unsigned int useconds) {
   Sleep(useconds / 1000);
   return 0;
 }
